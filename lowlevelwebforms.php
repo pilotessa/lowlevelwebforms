@@ -35,6 +35,7 @@ add_action( 'lw_webform_form_setup', 'lw_webform_setup' );
 add_action( 'lw_webform_form_validate', 'lw_webform_validate' );
 add_action( 'lw_webform_form_action', 'lw_webform_action' );
 add_action( 'save_post', 'lw_webform_save_template', 10, 2 );
+add_action( 'template_include', 'lw_webform_custom_template' );
 add_action( 'template_include', 'lw_webform_process', 20 );
 
 add_filter( 'the_content', 'lw_webform_add_the_content' );
@@ -397,7 +398,7 @@ function lw_plugin_page() {
 		<div id="icon-themes" class="icon32">
 			<br>
 		</div>
-		<h2>Direct Edit <?php _e( 'Options', 'lowlevelwebforms' ); ?></h2>
+		<h2>Lowlevelwebforms <?php _e( 'Options', 'lowlevelwebforms' ); ?></h2>
 		<h3><?php _e( 'custom webforms', 'lowlevelwebforms' ); ?></h3>
 		<div class="inside">
 			<table border="0">
@@ -574,9 +575,9 @@ function lw_webform_validate( $post ) {
 		$password = $wpdb->escape( $_POST[ 'password' ] );
 
 		if( empty( $lw_webform_values[ 'email' ] ) || ! filter_var( $lw_webform_values[ 'email' ], FILTER_VALIDATE_EMAIL ) || email_exists( $lw_webform_values[ 'email' ] ) == false )
-			$lw_webform_errors[ 'email' ] = __( 'You have no email specified.', 'direct-edit' );
+			$lw_webform_errors[ 'email' ] = __( 'You have no email specified.', 'lowlevelwebforms' );
 		if( empty( $password ) )
-			$lw_webform_errors[ 'password' ] = __( 'You have no password specified.', 'direct-edit' );
+			$lw_webform_errors[ 'password' ] = __( 'You have no password specified.', 'lowlevelwebforms' );
 	}
 }
 
@@ -637,7 +638,26 @@ function lw_webform_save_template( $post_id, $post ) {
 	}
 }
 
-function lw_webform_process( $template ) {
+function lw_webform_custom_template( $arg ) {
+	global $post;
+	global $lw_webform_errors;
+	global $lw_webform_messages;
+	global $lw_webform_values;
+	
+	if ( $post->post_type == 'lw_webform' ) {
+		if ( is_dir( get_stylesheet_directory() . '/lowlevelwebforms/custom/' . $post->post_name ) && file_exists( get_stylesheet_directory() . '/lowlevelwebforms/custom/' . $post->post_name . '/single-lw_webform.php' ) ) {
+			$template = get_stylesheet_directory() . '/lowlevelwebforms/custom/' . $post->post_name . '/single-lw_webform.php';
+
+			if ( file_exists( dirname( $template ) . '/functions.php' ) ) {
+				include dirname( $template ) . '/functions.php';
+			}
+		}
+	}
+	
+	return $arg;
+}
+
+function lw_webform_process( $arg ) {
 	global $post;
 	global $wpdb;
 	global $lw_webform_errors;
@@ -674,7 +694,7 @@ function lw_webform_process( $template ) {
 		$userEmailBody = get_post_meta( $postId, 'lw_user_email_body', true );
 		$userEmailAttachUploads = get_post_meta( $postId, 'lw_user_attach_uploads', true );
 
-		do_action( $post->post_type . '_form_setup', $post );
+		do_action( 'lw_webform_form_setup', $post );
 		
 		if( $_SERVER[ 'REQUEST_METHOD' ] == 'POST' ) {
 			// Check uploads
@@ -683,8 +703,10 @@ function lw_webform_process( $template ) {
 				inclulw_once( ABSPATH . 'wp-admin/includes/file.php' );
 				
 				foreach ( $_FILES as $key => $file ) {
-					if ( ! empty( $file[ 'error' ] ) ) {
-						$lw_webform_errors[ $key ] = __( 'File uploading error.', 'direct-edit' );
+					if ( $file[ 'error' ] == UPLOAD_ERR_NO_FILE ) {
+						continue;
+					} elseif ( ! empty( $file[ 'error' ] ) ) {
+						$lw_webform_errors[ $key ] = __( 'File uploading error.', 'lowlevelwebforms' );
 					} else {
 						$result = wp_handle_upload( $file, array( 'test_form' => FALSE ) );
 						
@@ -698,13 +720,13 @@ function lw_webform_process( $template ) {
 								$lw_webform_user_attachments[] = $result[ 'file' ];
 							}
 						} else {
-							$lw_webform_errors[ $key ] = __( 'File uploading error.', 'direct-edit' );
+							$lw_webform_errors[ $key ] = __( 'File uploading error.', 'lowlevelwebforms' );
 						}
 					}
 				}
 			}
 
-			do_action( $post->post_type . '_form_validate', $post );
+			do_action( 'lw_webform_form_validate', $post );
 
 			if ( empty( $lw_webform_errors ) ) {
 				foreach( $_POST as $key => $value) {
@@ -725,7 +747,7 @@ function lw_webform_process( $template ) {
 					}
 				}
 
-				do_action( $post->post_type . '_form_action', $post );
+				do_action( 'lw_webform_form_action', $post );
 				
 				if ( empty( $lw_webform_errors ) ) {
 					// Admin email
@@ -736,7 +758,7 @@ function lw_webform_process( $template ) {
 
 					if ( $lw_webform_use_admin_email ) {
 						//if( filter_var( $adminEmailFrom, FILTER_VALIDATE_EMAIL ) && filter_var( $adminEmailTo, FILTER_VALIDATE_EMAIL ) ) {
-							$blogname = wp_specialchars_decode( get_option('blogname'), ENT_QUOTES );
+							$blogname = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 							$headers = 'From: ' . $blogname . ' <' . $adminEmailFrom . ">\r\n";
 							if ( $adminEmailBodyHtml )
 								$headers .= 'Content-type: text/html' . "\r\n";
@@ -787,7 +809,7 @@ function lw_webform_process( $template ) {
 		}
 	}
 	
-	return $template;
+	return $arg;
 }
 
 function lw_webform_add_the_content( $content ) {
@@ -799,10 +821,6 @@ function lw_webform_add_the_content( $content ) {
 	if ( $post->post_type == 'lw_webform' ) {
 		if ( is_dir( get_stylesheet_directory() . '/lowlevelwebforms/custom/' . $post->post_name ) && file_exists( get_stylesheet_directory() . '/lowlevelwebforms/custom/' . $post->post_name . '/single-lw_webform.php' ) ) {
 			$template = get_stylesheet_directory() . '/lowlevelwebforms/custom/' . $post->post_name . '/single-lw_webform.php';
-			
-			if ( file_exists( dirname( $template ) . '/functions.php' ) ) {
-				include dirname( $template ) . '/functions.php';
-			}
 			
 			ob_start();
 			include $template;

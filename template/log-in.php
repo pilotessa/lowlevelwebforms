@@ -12,15 +12,15 @@ if ( ! empty( $lw_webform_messages ) ) {
 ?>
 		<form method="post">
 			<p>
-			<label for="email"><em>&nbsp;</em><?php _e( 'Email', 'direct-edit' ); ?></label>
+			<label for="email"><em>&nbsp;</em><?php _e( 'Email', 'lowlevelwebforms' ); ?></label>
 			<input id="email" name="email" type="email" class="required email" value="<?php echo esc_attr( $lw_webform_values[ 'email' ] ); ?>" />
 			</p>
 			<p>
-			<label for="password"><em>&nbsp;</em><?php _e( 'Password', 'direct-edit' ); ?></label>
+			<label for="password"><em>&nbsp;</em><?php _e( 'Password', 'lowlevelwebforms' ); ?></label>
 			<input id="password" name="password" type="password" class="required" />
 			</p>
 			<p>
-			<input id="send" name="send" value="send" type="submit" />
+			<input id="submit" name="submit" value="<?php _e( 'Send', 'lowlevelwebforms' ); ?>" type="submit">
 			</p>
 		</form>
 <?php
