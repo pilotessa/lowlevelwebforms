@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Lowlevel Webforms
-Version: 1.0
+Version: 0.1
 Author: Carlo Roosen, Elena Mukhina
 Author URI: http://carloroosen.com/
 */
