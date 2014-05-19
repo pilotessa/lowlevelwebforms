@@ -371,7 +371,6 @@ function lw_webform_plugin_menu() {
 }
 
 function lw_plugin_page() {
-	global $wpdb;
 	global $options;
 	global $user_ID;
 
@@ -659,7 +658,6 @@ function lw_webform_custom_template( $arg ) {
 
 function lw_webform_process( $arg ) {
 	global $post;
-	global $wpdb;
 	global $lw_webform_errors;
 	global $lw_webform_messages;
 	global $lw_webform_search;
@@ -700,7 +698,7 @@ function lw_webform_process( $arg ) {
 			// Check uploads
 			$uploads_to_delete = array();
 			if ( ! empty( $_FILES ) && is_array( $_FILES ) ) {
-				inclulw_once( ABSPATH . 'wp-admin/includes/file.php' );
+				include_once( ABSPATH . 'wp-admin/includes/file.php' );
 				
 				foreach ( $_FILES as $key => $file ) {
 					if ( $file[ 'error' ] == UPLOAD_ERR_NO_FILE ) {
@@ -731,12 +729,12 @@ function lw_webform_process( $arg ) {
 			if ( empty( $lw_webform_errors ) ) {
 				foreach( $_POST as $key => $value) {
 					$lw_webform_search[] = '{' . $key . '}';
-					$lw_webform_replace[] = $wpdb->escape( $value );
+					$lw_webform_replace[] = trim( $value );
 				}
 				
 				// Save uploaded files if they exist
 				if( ! empty( $_FILES ) && is_array( $_FILES ) ) {
-					inclulw_once( ABSPATH . 'wp-admin/includes/file.php' );
+					include_once( ABSPATH . 'wp-admin/includes/file.php' );
 					
 					foreach ( $_FILES as $file ) {
 						$result = wp_handle_upload( $file, array( 'test_form' => FALSE ) );

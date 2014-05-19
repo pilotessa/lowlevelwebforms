@@ -42,14 +42,13 @@ function lw_custom_contact_form_setup( $post ) {
 }
 
 function lw_custom_contact_form_validate( $post ) {
-	global $wpdb;
 	global $user_ID;
-	global $de_webform_errors;
-	global $de_webform_values;
+	global $lw_webform_errors;
+	global $lw_webform_values;
 
-	$lw_webform_values[ 'name' ] = $wpdb->escape( $_POST[ 'name' ] );
-	$lw_webform_values[ 'email' ] = $wpdb->escape( $_POST[ 'email' ] );
-	$lw_webform_values[ 'comments' ] = $wpdb->escape( $_POST[ 'comments' ] );
+	$lw_webform_values[ 'name' ] = trim( $_POST[ 'name' ] );
+	$lw_webform_values[ 'email' ] = trim( $_POST[ 'email' ] );
+	$lw_webform_values[ 'comments' ] = trim( $_POST[ 'comments' ] );
 	
 	if( empty( $lw_webform_values[ 'name' ] ) ) {
 		$lw_webform_errors[ 'name' ] = __( 'Name field is empty.', 'lowlevelwebforms' );
