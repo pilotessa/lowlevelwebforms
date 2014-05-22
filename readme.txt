@@ -1,6 +1,6 @@
-=== Lowlevel Webfroms ===
+=== Lowlevel Webforms ===
 Contributors: carloroosen, pilotessa
-Tags: forms html webform application
+Tags: forms, html, webform, application
 Requires at least: 3.0.1
 Tested up to: 3.8.1
 Stable tag: 0.1
