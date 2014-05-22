@@ -35,11 +35,13 @@ The idea of this plugin is that it creates basic html which you then can modify 
 For basic usage, see the video. In functions.php the following options are available:
 
 hooks:
+
 * lw_webform_form_setup
 * lw_webform_form_validate
 * lw_webform_form_action
 
 global variables:
+
 * global $lw_webform_id;
 * global $lw_webform_errors;
 * global $lw_webform_messages;
